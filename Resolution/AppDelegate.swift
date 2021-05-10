@@ -3,10 +3,10 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 	lazy var displayList = DisplayList()
-	lazy var statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(NSVariableStatusItemLength)
+	lazy var statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 	lazy var menuToDisplayMap = [NSMenu: Display]()
 
-	func applicationDidFinishLaunching(aNotification: NSNotification) {
+	func applicationDidFinishLaunching(_ notification: Notification) {
 		statusItem.title = "…"
 
 		buildStatusItemMenu()
@@ -26,23 +26,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
 			$0.supportedResolutions.forEach {
 				let title = "\($0.1 + 1) — x\($0.0.width)x\($0.0.height)"
-				let displayResolutionMenuItem = NSMenuItem(title: title, action: "selectResolution:", keyEquivalent: "")
+				let displayResolutionMenuItem = NSMenuItem(title: title, action: #selector(selectResolution(_:)), keyEquivalent: "")
 				displayResolutionMenuItem.representedObject = $0.1
 				displayMenu.addItem(displayResolutionMenuItem)
 			}
 
-			let displayMenuItem = statusItem.menu?.addItemWithTitle(displayMenu.title, action: nil, keyEquivalent: "")
+			let displayMenuItem = statusItem.menu?.addItem(withTitle: displayMenu.title, action: nil, keyEquivalent: "")
 			displayMenuItem?.submenu = displayMenu
 
-			statusItem.menu?.addItem(NSMenuItem.separatorItem())
+			statusItem.menu?.addItem(NSMenuItem.separator())
 		}
 
-		statusItem.menu?.addItemWithTitle("Quit", action: "terminate:", keyEquivalent: "q'")
+//		statusItem.menu?.addItem(withTitle: "Quit", action: #selector(terminate(_:)), keyEquivalent: "q")
 	}
 
-	func selectResolution(sender: NSMenuItem) {
+	@objc func selectResolution(_ sender: NSMenuItem) {
 		let menu = sender.menu as NSMenu?
-		if let display = menuToDisplayMap[menu!], displayResolutionIndex = sender.representedObject as? Int {
+		if let display = menuToDisplayMap[menu!], let displayResolutionIndex = sender.representedObject as? Int {
 			display.setMode(displayResolutionIndex)
 		}
 	}
